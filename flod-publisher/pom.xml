@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.fao.fi.flod</groupId>
-  <artifactId>flod_publisher</artifactId>
+  <artifactId>flod-publisher</artifactId>
   <version>0.1</version>
   <packaging>jar</packaging>
 
-  <name>flod_publisher</name>
+  <name>flod-publisher</name>
   <url>http://maven.apache.org</url>
 
   <properties>

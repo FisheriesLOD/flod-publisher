@@ -5,6 +5,8 @@
  */
 package org.fao.fi.flod.publisher.utils;
 
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.rdf.model.AnonId;
@@ -12,16 +14,29 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import com.hp.hpl.jena.sparql.core.DatasetGraphFactory;
+import com.hp.hpl.jena.sparql.modify.request.QuadDataAcc;
+import com.hp.hpl.jena.sparql.modify.request.UpdateDataInsert;
+import com.hp.hpl.jena.update.UpdateExecutionFactory;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Claudio Baldassarre <c.baldassarre@me.com>
  */
 public class Utils {
+
+    private static org.slf4j.Logger log = LoggerFactory.getLogger(Utils.class);
 
     public static void notNull(String name, Object o) throws IllegalArgumentException {
         if (o == null) {
@@ -80,7 +95,19 @@ public class Utils {
     public static PublicationTask fooTask(Object useless) throws MalformedURLException, PublicationTask.InvalidTask {
         Model fooTask = fooTask();
         return PublicationTask.create(fooTask.getGraph());
-        
+
     }
 
+    public void publish_on_file(Model rdf, String graphId, String filename) {
+        DatasetGraph dsg = DatasetGraphFactory.createMem();
+        dsg.addGraph(NodeFactory.createURI(graphId), rdf.getGraph());
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(new File(filename));
+            RDFDataMgr.write(fos, dsg, Lang.NQUADS);
+            fos.close();
+        } catch (IOException ex) {
+            log.error(ex.getMessage());
+        }
+    }   
 }

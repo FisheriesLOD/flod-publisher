@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 public class TaskStoreTest {
 
     private static Logger log = LoggerFactory.getLogger(TaskStoreTest.class);
-    private File taskFile = new File("tasks/asfis_alpha3.task.nt");
+    private File taskFile = new File("tasks/asfis_alpha3.task.n3");
 
     @Test
     public void readStore() throws MalformedURLException {
@@ -51,6 +51,7 @@ public class TaskStoreTest {
         log.info("source graphs found : {}", task.sourceGraphs);
         log.info("target graphs found : {}", task.targetGraph);
         log.info("transformation query found : {}", task.transformationQuery);
+        log.info("transformation query found : {}", task.diffQuery);
     }
 
     @Test
@@ -73,11 +74,6 @@ public class TaskStoreTest {
         UpdateDataInsert insert_source = new UpdateDataInsert(qda_source);
         UpdateExecutionFactory.createRemote(insert_source, "http://168.202.3.223:3030/sr_staging/update").execute();
 
-//        //populate public with test graph
-//        Node gNode_target = NodeFactory.createURI("http://semanticrepository/graph/target_graph");
-//        QuadDataAcc qda_target = makeQuadAcc(gNode_target, Utils.fooModel().getGraph());
-//        UpdateDataInsert insert_target = new UpdateDataInsert(qda_target);
-//        UpdateExecutionFactory.createRemote(insert_target, "http://168.202.3.223:3030/sr_public/update").execute();
         PublicationTask fooTask = Utils.fooTask(this);
         List<URL> dependingGs = TaskStore.getInstance().runTask(fooTask, PublicationPolicy.REPUBLISH);
         for (URL url : dependingGs) {

@@ -45,7 +45,7 @@ public class Store {
 
     public Graph getGraph(String graphId) {
         Node gNode = NodeFactory.createURI(graphId.toString());
-        return storeAccessor.httpGet(gNode);
+        return storeAccessor_data.httpGet(gNode);
     }
     
     protected String date() {

@@ -23,5 +23,7 @@ public class TASK_VOCAB {
     public static final Property source_endpoint = ResourceFactory.createProperty("http://semanticrepository/task#source_endpoint");
     public static final Property publication_endpoint = ResourceFactory.createProperty("http://semanticrepository/task#publication_endpoint");
     public static final Property transformation_query = ResourceFactory.createProperty("http://semanticrepository/task#query");
+    public static final Property diff_query = ResourceFactory.createProperty("http://semanticrepository/task#diff_query");
+    
     
 }
