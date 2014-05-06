@@ -3,18 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fao.fi.flod.publisher.store;
+package org.fao.fi.flod.publisher.store.publication;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.query.DatasetAccessorFactory;
 import com.hp.hpl.jena.sparql.modify.request.QuadDataAcc;
 import com.hp.hpl.jena.sparql.modify.request.UpdateDataInsert;
 import com.hp.hpl.jena.sparql.modify.request.UpdateDrop;
 import com.hp.hpl.jena.update.UpdateExecutionFactory;
 import java.net.URL;
 import org.apache.jena.web.DatasetGraphAccessorHTTP;
+import org.fao.fi.flod.publisher.store.Store;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -57,6 +57,15 @@ public class PublicationStore extends Store {
         UpdateExecutionFactory.createRemote(drop, configuration.getUpdateEndpointURL().toString()).execute();
 
         QuadDataAcc qda = makeQuadAcc(gNode, transformedGraph);
+        UpdateDataInsert insert = new UpdateDataInsert(qda);
+        UpdateExecutionFactory.createRemote(insert, configuration.getUpdateEndpointURL().toString()).execute();
+
+    }
+
+    public void updated(Graph updateG, URL targetGraph) {
+        Node gNode = NodeFactory.createURI(targetGraph.toString());
+
+        QuadDataAcc qda = makeQuadAcc(gNode, updateG);
         UpdateDataInsert insert = new UpdateDataInsert(qda);
         UpdateExecutionFactory.createRemote(insert, configuration.getUpdateEndpointURL().toString()).execute();
 

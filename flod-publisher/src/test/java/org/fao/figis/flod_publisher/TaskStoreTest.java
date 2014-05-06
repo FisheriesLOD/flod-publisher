@@ -18,10 +18,9 @@ import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import org.fao.fi.flod.publisher.store.TaskStore;
-import org.fao.fi.flod.publisher.utils.PublicationPolicy;
-import org.fao.fi.flod.publisher.utils.PublicationTask;
-import org.fao.fi.flod.publisher.utils.Utils;
+import org.fao.fi.flod.publisher.store.task.TaskStore;
+import org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB;
+import org.fao.fi.flod.publisher.store.task.PublicationTask;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,7 @@ import org.slf4j.LoggerFactory;
 public class TaskStoreTest {
 
     private static Logger log = LoggerFactory.getLogger(TaskStoreTest.class);
-    private File taskFile = new File("tasks/asfis_alpha3.task.nt");
+    private File taskFile = new File("tasks/asfis_alpha3.task.n3");
 
     @Test
     public void readStore() throws MalformedURLException {
@@ -51,6 +50,7 @@ public class TaskStoreTest {
         log.info("source graphs found : {}", task.sourceGraphs);
         log.info("target graphs found : {}", task.targetGraph);
         log.info("transformation query found : {}", task.transformationQuery);
+        log.info("transformation query found : {}", task.diffQuery);
     }
 
     @Test
@@ -73,13 +73,8 @@ public class TaskStoreTest {
         UpdateDataInsert insert_source = new UpdateDataInsert(qda_source);
         UpdateExecutionFactory.createRemote(insert_source, "http://168.202.3.223:3030/sr_staging/update").execute();
 
-//        //populate public with test graph
-//        Node gNode_target = NodeFactory.createURI("http://semanticrepository/graph/target_graph");
-//        QuadDataAcc qda_target = makeQuadAcc(gNode_target, Utils.fooModel().getGraph());
-//        UpdateDataInsert insert_target = new UpdateDataInsert(qda_target);
-//        UpdateExecutionFactory.createRemote(insert_target, "http://168.202.3.223:3030/sr_public/update").execute();
         PublicationTask fooTask = Utils.fooTask(this);
-        List<URL> dependingGs = TaskStore.getInstance().runTask(fooTask, PublicationPolicy.REPUBLISH);
+        List<URL> dependingGs = TaskStore.getInstance().runTask(fooTask, PUBLICATION_POLICY_VOCAB.REPUBLISH);
         for (URL url : dependingGs) {
             log.info("remember to update also {} ",url);
         }

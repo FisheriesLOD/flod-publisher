@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fao.fi.flod.publisher.utils;
+package org.fao.fi.flod.publisher.store.task;
 
+import org.fao.fi.flod.publisher.vocabularies.TASK_VOCAB;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -29,27 +30,23 @@ import org.apache.jena.riot.RDFDataMgr;
  */
 public class PublicationTask {
 
-    public static TASK_VOCAB TASK_VOCAB;
     public Graph taskG;
 
     private PublicationTask() {
 
     }
 
-    private  List<URL> listDependingGraphs() throws MalformedURLException, InvalidTask {
+    private List<URL> listDependingGraphs() throws MalformedURLException, InvalidTask {
         List<URL> dependingGrpahs = new ArrayList<URL>();
         ExtendedIterator<Triple> it = taskG.find(Node.ANY, TASK_VOCAB.depending_graph.asNode(), Node.ANY);
         while (it.hasNext()) {
             Triple triple = it.next();
             dependingGrpahs.add(new URL(triple.getObject().getURI()));
         }
-        if (dependingGrpahs.isEmpty()) {
-            throw new InvalidTask();
-        }
         return dependingGrpahs;
     }
 
-    private  URL getTargetGraph() throws MalformedURLException, InvalidTask {
+    private URL getTargetGraph() throws MalformedURLException, InvalidTask {
         ExtendedIterator<Triple> it = taskG.find(Node.ANY, TASK_VOCAB.target_graph.asNode(), Node.ANY);
         URL targetG = new URL(it.next().getObject().getURI());
         if (it.hasNext()) {
@@ -58,7 +55,7 @@ public class PublicationTask {
         return targetG;
     }
 
-    private  List<URL> listSourceGraphs() throws MalformedURLException, InvalidTask {
+    private List<URL> listSourceGraphs() throws MalformedURLException, InvalidTask {
         List<URL> sources = new ArrayList<URL>();
         ExtendedIterator<Triple> it = taskG.find(Node.ANY, TASK_VOCAB.source_graph.asNode(), Node.ANY);
         while (it.hasNext()) {
@@ -71,16 +68,33 @@ public class PublicationTask {
         return sources;
     }
 
-    private  Query getTransformationQuery() throws InvalidTask {
-        ExtendedIterator<Triple> it = taskG.find(Node.ANY, TASK_VOCAB.transformation_query.asNode(), Node.ANY);
-        Query q = QueryFactory.create(it.next().getObject().getLiteral().toString());
-        if (it.hasNext()) {
-            throw new InvalidTask();
+    private Query getDiffQuery() throws InvalidTask {
+        Query q = QueryFactory.create();
+        boolean pExists = taskG.contains(Node.ANY, TASK_VOCAB.diff_query.asNode(), Node.ANY);
+        if (pExists) {
+            ExtendedIterator<Triple> it = taskG.find(Node.ANY, TASK_VOCAB.diff_query.asNode(), Node.ANY);
+            q = QueryFactory.create(it.next().getObject().getLiteral().toString());
+            if (it.hasNext()) {
+                throw new InvalidTask();
+            }
         }
         return q;
     }
 
-    private  URL getSourceEndpoint() throws MalformedURLException, InvalidTask {
+    private Query getTransformationQuery() throws InvalidTask {
+        Query q = QueryFactory.create();
+        boolean pExists = taskG.contains(Node.ANY, TASK_VOCAB.transformation_query.asNode(), Node.ANY);
+        if (pExists) {
+            ExtendedIterator<Triple> it = taskG.find(Node.ANY, TASK_VOCAB.transformation_query.asNode(), Node.ANY);
+            q = QueryFactory.create(it.next().getObject().getLiteral().toString());
+            if (it.hasNext()) {
+                throw new InvalidTask();
+            }
+        }
+        return q;
+    }
+
+    private URL getSourceEndpoint() throws MalformedURLException, InvalidTask {
         ExtendedIterator<Triple> it = taskG.find(Node.ANY, TASK_VOCAB.source_endpoint.asNode(), Node.ANY);
         URL sourceGraph = new URL(it.next().getObject().getURI());
         if (it.hasNext()) {
@@ -89,7 +103,7 @@ public class PublicationTask {
         return sourceGraph;
     }
 
-    private  URL getPublicationEndpoint() throws MalformedURLException, InvalidTask {
+    private URL getPublicationEndpoint() throws MalformedURLException, InvalidTask {
         ExtendedIterator<Triple> it = taskG.find(Node.ANY, TASK_VOCAB.publication_endpoint.asNode(), Node.ANY);
         URL publicationE = new URL(it.next().getObject().getURI());
         if (it.hasNext()) {
@@ -101,6 +115,7 @@ public class PublicationTask {
     public URL targetGraph;
     public List<URL> sourceGraphs;
     public Query transformationQuery;
+    public Query diffQuery;
     public URL sourceEndpoint;
     public URL publicationEndpoint;
     public List<URL> dependingGraphs;
@@ -112,24 +127,20 @@ public class PublicationTask {
         pt.targetGraph = pt.getTargetGraph();
         pt.sourceGraphs = pt.listSourceGraphs();
         pt.transformationQuery = pt.getTransformationQuery();
+        pt.diffQuery = pt.getDiffQuery();
         pt.sourceEndpoint = pt.getSourceEndpoint();
         pt.publicationEndpoint = pt.getPublicationEndpoint();
         pt.dependingGraphs = pt.listDependingGraphs();
-        
+
         return pt;
     }
-    
-    public static PublicationTask create (File f) throws MalformedURLException, InvalidTask{
+
+    public static PublicationTask create(File f) throws MalformedURLException, InvalidTask {
         Model taskM = RDFDataMgr.loadModel(f.toURI().toString());
-//        Model taskM = FileManager.get().loadModel(f.getAbsolutePath());
         return create(taskM.getGraph());
     }
-    
-    public static File toFile (PublicationTask t, File f) throws FileNotFoundException{
-//        Model taskM = ModelFactory.createDefaultModel();
-//        StmtIterator stmts = ModelUtils.triplesToStatements(GraphUtil.findAll(t.taskG), taskM);
-//  
-//        taskM.add(stmts);
+
+    public static File toFile(PublicationTask t, File f) throws FileNotFoundException {
         RDFDataMgr.createGraphWriter(Lang.NT).write(new FileOutputStream(f), t.taskG, null, null, Context.emptyContext);
         return f;
     }

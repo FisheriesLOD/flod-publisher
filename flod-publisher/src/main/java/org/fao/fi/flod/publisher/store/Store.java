@@ -5,6 +5,7 @@
  */
 package org.fao.fi.flod.publisher.store;
 
+import org.fao.fi.flod.publisher.store.publication.PublicationStore;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
@@ -45,7 +46,7 @@ public class Store {
 
     public Graph getGraph(String graphId) {
         Node gNode = NodeFactory.createURI(graphId.toString());
-        return storeAccessor.httpGet(gNode);
+        return storeAccessor_data.httpGet(gNode);
     }
     
     protected String date() {
