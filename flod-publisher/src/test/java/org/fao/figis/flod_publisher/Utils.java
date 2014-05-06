@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fao.fi.flod.publisher.utils;
+package org.fao.figis.flod_publisher;
 
-import com.hp.hpl.jena.graph.Node;
+import org.fao.fi.flod.publisher.store.task.PublicationTask;
+import org.fao.fi.flod.publisher.vocabularies.TASK_VOCAB;
 import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
@@ -16,9 +17,6 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.sparql.core.DatasetGraphFactory;
-import com.hp.hpl.jena.sparql.modify.request.QuadDataAcc;
-import com.hp.hpl.jena.sparql.modify.request.UpdateDataInsert;
-import com.hp.hpl.jena.update.UpdateExecutionFactory;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,12 +35,6 @@ import org.slf4j.LoggerFactory;
 public class Utils {
 
     private static org.slf4j.Logger log = LoggerFactory.getLogger(Utils.class);
-
-    public static void notNull(String name, Object o) throws IllegalArgumentException {
-        if (o == null) {
-            throw new IllegalArgumentException(name + " is null");
-        }
-    }
 
     public static Model fooTask() throws MalformedURLException {
         Model taskModel = ModelFactory.createDefaultModel();

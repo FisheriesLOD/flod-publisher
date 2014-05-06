@@ -4,13 +4,13 @@
  * and open the template in the editor.
  */
 
-package org.fao.fi.flod.publisher.utils;
+package org.fao.fi.flod.publisher.vocabularies;
 
 /**
  *
  * @author Claudio Baldassarre <c.baldassarre@me.com>
  */
-public class PublicationPolicy {
+public class PUBLICATION_POLICY_VOCAB {
     
     public static final String DIFF = "http://org.fao.fi/publisher/task/diff";
     public static final String RESTORE = "http://org.fao.fi/publisher/task/restore";

@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fao.fi.flod.publisher.utils;
+package org.fao.fi.flod.publisher.store.task;
 
+import org.fao.fi.flod.publisher.vocabularies.TASK_VOCAB;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -42,9 +43,6 @@ public class PublicationTask {
             Triple triple = it.next();
             dependingGrpahs.add(new URL(triple.getObject().getURI()));
         }
-//        if (dependingGrpahs.isEmpty()) {
-//            throw new InvalidTask();
-//        }
         return dependingGrpahs;
     }
 

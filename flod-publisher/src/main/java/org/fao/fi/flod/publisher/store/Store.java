@@ -5,6 +5,7 @@
  */
 package org.fao.fi.flod.publisher.store;
 
+import org.fao.fi.flod.publisher.store.publication.PublicationStore;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;

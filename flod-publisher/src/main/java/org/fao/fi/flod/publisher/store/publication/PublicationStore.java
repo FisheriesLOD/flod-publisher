@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fao.fi.flod.publisher.store;
+package org.fao.fi.flod.publisher.store.publication;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -14,6 +14,7 @@ import com.hp.hpl.jena.sparql.modify.request.UpdateDrop;
 import com.hp.hpl.jena.update.UpdateExecutionFactory;
 import java.net.URL;
 import org.apache.jena.web.DatasetGraphAccessorHTTP;
+import org.fao.fi.flod.publisher.store.Store;
 import org.slf4j.LoggerFactory;
 
 /**

@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package org.fao.fi.flod.publisher.utils;
+package org.fao.fi.flod.publisher.vocabularies;
 
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;

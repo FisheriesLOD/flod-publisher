@@ -4,7 +4,6 @@ import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
 import java.net.URI;
 import java.util.Properties;
-import static org.fao.fi.flod.publisher.utils.Utils.*;
 
 public class StoreConfiguration {
 
@@ -56,5 +55,11 @@ public class StoreConfiguration {
     public Query query_listPublicationTasks() {
         String query = properties.getProperty("query_publication_tasks");
         return QueryFactory.create(query);
+    }
+    
+    private static void notNull(String name, Object o) throws IllegalArgumentException {
+        if (o == null) {
+            throw new IllegalArgumentException(name + " is null");
+        }
     }
 }

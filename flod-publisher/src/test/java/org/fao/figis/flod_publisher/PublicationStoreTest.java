@@ -8,8 +8,7 @@ package org.fao.figis.flod_publisher;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.fao.fi.flod.publisher.store.PublicationStore;
-import org.fao.fi.flod.publisher.utils.Utils;
+import org.fao.fi.flod.publisher.store.publication.PublicationStore;
 import org.junit.Test;
 
 /**

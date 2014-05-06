@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.fao.fi.flod.publisher.store;
+package org.fao.fi.flod.publisher.store.task;
 
+import org.fao.fi.flod.publisher.store.publication.PublicationStore;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
@@ -25,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.jena.web.DatasetGraphAccessorHTTP;
-import static org.fao.fi.flod.publisher.utils.PublicationPolicy.*;
-import org.fao.fi.flod.publisher.utils.PublicationTask;
+import org.fao.fi.flod.publisher.store.Store;
+import static org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
