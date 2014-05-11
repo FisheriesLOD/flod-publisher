@@ -1,0 +1,61 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:fn="http://www.w3.org/2005/xpath-functions#"
+    xmlns:ce="http://www.fao.org/figis/flod/onto/codedentity.owl#"
+    xmlns:dct="http://purl.org/dc/terms/"
+    xmlns:cls_odp="http://www.ontologydesignpatterns.org/cp/owl/classification.owl#"
+    xmlns:cls="http://www.fao.org/figis/flod/onto/codedentityclassification.owl#"
+    xmlns:j.0="http://www.fao.org/figis/flod/onto/linneanspecies.owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <j.0:SpeciesCode rdf:about="http://www.fao.org/figis/flod/entities/speciescode/smh">
+    <rdfs:label>SMH</rdfs:label>
+    <skos:notation>SMH</skos:notation>
+    <cls_odp:classifies>
+      <ce:CodedEntity rdf:about="http://www.fao.org/figis/flod/entities/codedentity/8ac37a6a-aa27-4cb0-9e5d-36b71e9cba53">
+        <skos:prefLabel xml:lang="es">Foca monje del Hawaii</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Hawaiian monk seal</skos:prefLabel>
+        <skos:prefLabel xml:lang="la">Monachus schauinslandi</skos:prefLabel>
+        <rdfs:label xml:lang="fr">Phoque moine de Hawai</rdfs:label>
+        <rdfs:label xml:lang="es">Foca monje del Hawaii</rdfs:label>
+        <rdfs:label xml:lang="la">Monachus schauinslandi</rdfs:label>
+        <skos:prefLabel xml:lang="fr">Phoque moine de Hawai</skos:prefLabel>
+        <rdfs:label xml:lang="en">Hawaiian monk seal</rdfs:label>
+        <cls:isClassfiedByCode rdf:resource="http://www.fao.org/figis/flod/entities/speciescode/smh"/>
+        <dct:subject rdf:resource="http://www.fao.org/figis/flod/entities/speciescode/smh"/>
+      </ce:CodedEntity>
+    </cls_odp:classifies>
+  </j.0:SpeciesCode>
+  <j.0:SpeciesCode rdf:about="http://www.fao.org/figis/flod/entities/speciescode/skc">
+    <rdfs:label>SKC</rdfs:label>
+    <skos:notation>SKC</skos:notation>
+    <cls_odp:classifies>
+      <ce:CodedEntity rdf:about="http://www.fao.org/figis/flod/entities/codedentity/9d4d38c4-d3b7-43a8-bf2f-66afd648ac73">
+        <rdfs:label xml:lang="la">Monachus tropicalis</rdfs:label>
+        <rdfs:label xml:lang="en">Caribbean monk seal</rdfs:label>
+        <rdfs:label xml:lang="es">Foca monja del Caribe</rdfs:label>
+        <skos:prefLabel xml:lang="la">Monachus tropicalis</skos:prefLabel>
+        <skos:prefLabel xml:lang="fr">Phoque moine des Caraïbes</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">Caribbean monk seal</skos:prefLabel>
+        <dct:subject rdf:resource="http://www.fao.org/figis/flod/entities/speciescode/skc"/>
+        <rdfs:label xml:lang="fr">Phoque moine des Caraïbes</rdfs:label>
+        <cls:isClassfiedByCode rdf:resource="http://www.fao.org/figis/flod/entities/speciescode/skc"/>
+        <skos:prefLabel xml:lang="es">Foca monja del Caribe</skos:prefLabel>
+      </ce:CodedEntity>
+    </cls_odp:classifies>
+  </j.0:SpeciesCode>
+  <j.0:SpeciesCode rdf:about="http://www.fao.org/figis/flod/entities/speciescode/mca">
+    <rdfs:label>MCA</rdfs:label>
+    <skos:notation>MCA</skos:notation>
+    <cls_odp:classifies>
+      <ce:CodedEntity rdf:about="http://www.fao.org/figis/flod/entities/codedentity/b41c64ec-4da6-4350-bc99-3e1e181eacdb">
+        <rdfs:label xml:lang="en">Golden perch</rdfs:label>
+        <skos:prefLabel xml:lang="en">Golden perch</skos:prefLabel>
+        <cls:isClassfiedByCode rdf:resource="http://www.fao.org/figis/flod/entities/speciescode/mca"/>
+        <dct:subject rdf:resource="http://www.fao.org/figis/flod/entities/speciescode/mca"/>
+        <rdfs:label xml:lang="la">Macquaria ambigua</rdfs:label>
+        <skos:prefLabel xml:lang="la">Macquaria ambigua</skos:prefLabel>
+      </ce:CodedEntity>
+    </cls_odp:classifies>
+  </j.0:SpeciesCode>
+</rdf:RDF>

@@ -1,0 +1,43 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:fn="http://www.w3.org/2005/xpath-functions#"
+    xmlns:ce="http://www.fao.org/figis/flod/onto/codedentity.owl#"
+    xmlns:dct="http://purl.org/dc/terms/"
+    xmlns:cls_odp="http://www.ontologydesignpatterns.org/cp/owl/classification.owl#"
+    xmlns:cls="http://www.fao.org/figis/flod/onto/codedentityclassification.owl#"
+    xmlns:j.0="http://www.fao.org/figis/flod/onto/linneanspecies.owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <j.0:SpeciesCode rdf:about="http://www.fao.org/figis/flod/entities/speciescode/ses">
+    <rdfs:label>SES</rdfs:label>
+    <skos:notation>SES</skos:notation>
+    <cls_odp:classifies>
+      <ce:CodedEntity rdf:about="http://www.fao.org/figis/flod/entities/codedentity/19e60fec-b7e5-4fef-9c2e-a915eab4802c">
+        <cls:isClassfiedByCode rdf:resource="http://www.fao.org/figis/flod/entities/speciescode/ses"/>
+        <rdfs:label xml:lang="es">Foca elephante del sur</rdfs:label>
+        <dct:subject rdf:resource="http://www.fao.org/figis/flod/entities/speciescode/ses"/>
+        <skos:prefLabel xml:lang="es">Foca elephante del sur</skos:prefLabel>
+        <skos:prefLabel xml:lang="fr">Éléphant de mer austral</skos:prefLabel>
+        <rdfs:label xml:lang="la">Mirounga leonina</rdfs:label>
+        <rdfs:label xml:lang="fr">Éléphant de mer austral</rdfs:label>
+        <skos:prefLabel xml:lang="en">Southern elephant seal</skos:prefLabel>
+        <rdfs:label xml:lang="en">Southern elephant seal</rdfs:label>
+        <skos:prefLabel xml:lang="la">Mirounga leonina</skos:prefLabel>
+      </ce:CodedEntity>
+    </cls_odp:classifies>
+  </j.0:SpeciesCode>
+  <j.0:SpeciesCode rdf:about="http://www.fao.org/figis/flod/entities/speciescode/mqa">
+    <rdfs:label>MQA</rdfs:label>
+    <skos:notation>MQA</skos:notation>
+    <cls_odp:classifies>
+      <ce:CodedEntity rdf:about="http://www.fao.org/figis/flod/entities/codedentity/c8a4afe7-ff46-4a52-ab07-bbe732e3c1b7">
+        <rdfs:label xml:lang="la">Macquaria australasica</rdfs:label>
+        <skos:prefLabel xml:lang="la">Macquaria australasica</skos:prefLabel>
+        <cls:isClassfiedByCode rdf:resource="http://www.fao.org/figis/flod/entities/speciescode/mqa"/>
+        <dct:subject rdf:resource="http://www.fao.org/figis/flod/entities/speciescode/mqa"/>
+        <rdfs:label xml:lang="en">Australian bass</rdfs:label>
+        <skos:prefLabel xml:lang="en">Australian bass</skos:prefLabel>
+      </ce:CodedEntity>
+    </cls_odp:classifies>
+  </j.0:SpeciesCode>
+</rdf:RDF>

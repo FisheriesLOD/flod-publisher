@@ -6,9 +6,11 @@
 
 package org.fao.figis.flod_publisher;
 
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import java.net.MalformedURLException;
-import java.net.URL;
 import org.fao.fi.flod.publisher.store.publication.PublicationStore;
+import org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB;
 import org.junit.Test;
 
 /**
@@ -19,16 +21,16 @@ public class PublicationStoreTest {
     
     @Test
     public void backupGraph() throws MalformedURLException{
-        URL url = new URL("http://semanticrepository/graph/test");
+        Node url = NodeFactory.createURI("http://semanticrepository/graph/test");
         
         PublicationStore.getInstance().backup(url);
     }
     
     @Test
     public void publish() throws MalformedURLException{
-        URL url = new URL("http://semanticrepository/graph/test");
+        Node url = NodeFactory.createURI("http://semanticrepository/graph/test");
         
-        PublicationStore.getInstance().publish(Utils.fooModel().getGraph(), url);
+        PublicationStore.getInstance().publish(Utils.fooModel().getGraph(), url, PUBLICATION_POLICY_VOCAB.PUBLISH);
 
     }
     

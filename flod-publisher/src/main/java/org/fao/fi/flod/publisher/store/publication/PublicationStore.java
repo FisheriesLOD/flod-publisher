@@ -9,12 +9,14 @@ import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.sparql.modify.request.QuadDataAcc;
+import com.hp.hpl.jena.sparql.modify.request.UpdateDataDelete;
 import com.hp.hpl.jena.sparql.modify.request.UpdateDataInsert;
 import com.hp.hpl.jena.sparql.modify.request.UpdateDrop;
 import com.hp.hpl.jena.update.UpdateExecutionFactory;
 import java.net.URL;
 import org.apache.jena.web.DatasetGraphAccessorHTTP;
 import org.fao.fi.flod.publisher.store.Store;
+import org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -39,9 +41,8 @@ public class PublicationStore extends Store {
         return instance;
     }
 
-    public void backup(URL graphId_toBackup) {
-        Node gNode = NodeFactory.createURI(graphId_toBackup.toString());
-        Graph backupG = storeAccessor_data.httpGet(gNode);
+    public void backup(Node graphId_toBackup) {
+        Graph backupG = storeAccessor_data.httpGet(graphId_toBackup);
         if (backupG != null) {
             Node gNode_inBackup = NodeFactory.createURI(graphId_toBackup.toString() + date());
             QuadDataAcc qda = makeQuadAcc(gNode_inBackup, backupG);
@@ -50,25 +51,39 @@ public class PublicationStore extends Store {
         }
     }
 
-    public void publish(Graph transformedGraph, URL targetGraph) {
-        Node gNode = NodeFactory.createURI(targetGraph.toString());
+    public void publish(Graph sourceG, Node targetGraph, String method) {
+        if (method.equals(PUBLICATION_POLICY_VOCAB.PUBLISH)) {
+            rewrite(sourceG, targetGraph);
+        }
+        if (method.equals(PUBLICATION_POLICY_VOCAB.ADD)) {
+            add(sourceG, targetGraph);
+        }
+        if (method.equals(PUBLICATION_POLICY_VOCAB.REMOVE)) {
+            remove(sourceG, targetGraph);
+        }
+    }
 
-        UpdateDrop drop = new UpdateDrop(targetGraph.toString(), false);
+    public void rewrite(Graph sourceG, Node targetG_node) {
+        UpdateDrop drop = new UpdateDrop(targetG_node.toString(), false);
         UpdateExecutionFactory.createRemote(drop, configuration.getUpdateEndpointURL().toString()).execute();
 
-        QuadDataAcc qda = makeQuadAcc(gNode, transformedGraph);
+        QuadDataAcc qda = makeQuadAcc(targetG_node, sourceG);
         UpdateDataInsert insert = new UpdateDataInsert(qda);
         UpdateExecutionFactory.createRemote(insert, configuration.getUpdateEndpointURL().toString()).execute();
 
     }
 
-    public void updated(Graph updateG, URL targetGraph) {
-        Node gNode = NodeFactory.createURI(targetGraph.toString());
-
-        QuadDataAcc qda = makeQuadAcc(gNode, updateG);
+    public void add(Graph sourceG, Node targetG_node) {
+        QuadDataAcc qda = makeQuadAcc(targetG_node, sourceG);
         UpdateDataInsert insert = new UpdateDataInsert(qda);
         UpdateExecutionFactory.createRemote(insert, configuration.getUpdateEndpointURL().toString()).execute();
 
+    }
+
+    public void remove(Graph sourceG, Node targetG_node) {
+        QuadDataAcc qda = makeQuadAcc(targetG_node, sourceG);
+        UpdateDataDelete delete = new UpdateDataDelete(qda);
+        UpdateExecutionFactory.createRemote(delete, configuration.getUpdateEndpointURL().toString()).execute();
     }
 
 }

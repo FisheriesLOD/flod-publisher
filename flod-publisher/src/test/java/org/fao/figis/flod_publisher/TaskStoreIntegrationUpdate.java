@@ -6,12 +6,11 @@
 
 package org.fao.figis.flod_publisher;
 
+import com.hp.hpl.jena.graph.Node;
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import org.fao.fi.flod.publisher.store.task.TaskStore;
-import org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB;
 import org.fao.fi.flod.publisher.store.task.PublicationTask;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -25,11 +24,20 @@ public class TaskStoreIntegrationUpdate {
         private static Logger log = LoggerFactory.getLogger(TaskStoreIntegrationUpdate.class);
     
     @Test
-    public void runMicroAsfisUpdate() throws MalformedURLException, PublicationTask.InvalidTask {
-        PublicationTask microAsfis_task = PublicationTask.create(new File("tasks/micro-asfis_diff.n3"));
-        List<URL> dependingGs = TaskStore.getInstance().runTask(microAsfis_task, PUBLICATION_POLICY_VOCAB.DIFF);
-        for (URL url : dependingGs) {
-            log.info("remember to update also {} ",url);
+    public void runMicroAsxfisUpdate_add() throws PublicationTask.InvalidTask, Exception {
+        PublicationTask microAsfis_updateTask = PublicationTask.create(new File("tasks/micro-asfis_add.n3"));
+        List<Node> dependingGs = TaskStore.getInstance().runTask(microAsfis_updateTask);
+        for (Node dependingG : dependingGs) {
+            log.info("remember to update also {} ",dependingG);
+        }
+    }
+    
+//    @Test
+    public void runMicroAsfisUpdate_remove() throws PublicationTask.InvalidTask, Exception {
+        PublicationTask microAsfis_updateTask = PublicationTask.create(new File("tasks/micro-asfis_remove.n3"));
+        List<Node> dependingGs = TaskStore.getInstance().runTask(microAsfis_updateTask);
+        for (Node dependingG : dependingGs) {
+            log.info("remember to update also {} ",dependingG);
         }
     }
     

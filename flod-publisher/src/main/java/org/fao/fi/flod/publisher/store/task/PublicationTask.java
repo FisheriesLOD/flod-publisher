@@ -8,19 +8,24 @@ package org.fao.fi.flod.publisher.store.task;
 import org.fao.fi.flod.publisher.vocabularies.TASK_VOCAB;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.sparql.util.Context;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
+import com.hp.hpl.jena.vocabulary.DCTerms;
+import com.hp.hpl.jena.vocabulary.RDFS;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
@@ -36,31 +41,31 @@ public class PublicationTask {
 
     }
 
-    private List<URL> listDependingGraphs() throws MalformedURLException, InvalidTask {
-        List<URL> dependingGrpahs = new ArrayList<URL>();
+    private List<Node> listDependingGraphs() throws MalformedURLException, InvalidTask {
+        List<Node> dependingGrpahs = new ArrayList<Node>();
         ExtendedIterator<Triple> it = taskG.find(Node.ANY, TASK_VOCAB.depending_graph.asNode(), Node.ANY);
         while (it.hasNext()) {
             Triple triple = it.next();
-            dependingGrpahs.add(new URL(triple.getObject().getURI()));
+            dependingGrpahs.add(triple.getObject());
         }
         return dependingGrpahs;
     }
 
-    private URL getTargetGraph() throws MalformedURLException, InvalidTask {
+    private Node getTargetGraph() throws MalformedURLException, InvalidTask {
         ExtendedIterator<Triple> it = taskG.find(Node.ANY, TASK_VOCAB.target_graph.asNode(), Node.ANY);
-        URL targetG = new URL(it.next().getObject().getURI());
+        Node targetG = it.next().getObject();
         if (it.hasNext()) {
             throw new InvalidTask();
         }
         return targetG;
     }
 
-    private List<URL> listSourceGraphs() throws MalformedURLException, InvalidTask {
-        List<URL> sources = new ArrayList<URL>();
+    private List<Node> listSourceGraphs() throws MalformedURLException, InvalidTask {
+        List<Node> sources = new ArrayList<Node>();
         ExtendedIterator<Triple> it = taskG.find(Node.ANY, TASK_VOCAB.source_graph.asNode(), Node.ANY);
         while (it.hasNext()) {
             Triple triple = it.next();
-            sources.add(new URL(triple.getObject().getURI()));
+            sources.add(triple.getObject());
         }
         if (sources.isEmpty()) {
             throw new InvalidTask();
@@ -94,36 +99,86 @@ public class PublicationTask {
         return q;
     }
 
-    private URL getSourceEndpoint() throws MalformedURLException, InvalidTask {
+    private Node getSourceEndpoint() throws MalformedURLException, InvalidTask {
         ExtendedIterator<Triple> it = taskG.find(Node.ANY, TASK_VOCAB.source_endpoint.asNode(), Node.ANY);
-        URL sourceGraph = new URL(it.next().getObject().getURI());
+        Node sourceGraph = it.next().getObject();
         if (it.hasNext()) {
             throw new InvalidTask();
         }
         return sourceGraph;
     }
 
-    private URL getPublicationEndpoint() throws MalformedURLException, InvalidTask {
+    private Node getPublicationEndpoint() throws MalformedURLException, InvalidTask {
         ExtendedIterator<Triple> it = taskG.find(Node.ANY, TASK_VOCAB.publication_endpoint.asNode(), Node.ANY);
-        URL publicationE = new URL(it.next().getObject().getURI());
+        Node publicationE = it.next().getObject();
         if (it.hasNext()) {
             throw new InvalidTask();
         }
         return publicationE;
     }
 
-    public URL targetGraph;
-    public List<URL> sourceGraphs;
+    private Node getOperation() throws MalformedURLException, InvalidTask {
+        ExtendedIterator<Triple> it = taskG.find(Node.ANY, TASK_VOCAB.operation.asNode(), Node.ANY);
+        Node policy = it.next().getObject();
+        if (it.hasNext()) {
+            throw new InvalidTask();
+        }
+        return policy;
+    }
+
+    private Node getCreator() throws MalformedURLException, InvalidTask {
+        ExtendedIterator<Triple> it = taskG.find(Node.ANY, DCTerms.creator.asNode(), Node.ANY);
+        Node creator = it.next().getObject();
+        if (it.hasNext()) {
+            throw new InvalidTask();
+        }
+        return creator;
+    }
+
+    private Date getDate() throws MalformedURLException, InvalidTask {
+        return Calendar.getInstance(Locale.ITALY).getTime();
+    }
+
+    private String getTitle() throws InvalidTask {
+        ExtendedIterator<Triple> it = taskG.find(Node.ANY, RDFS.label.asNode(), Node.ANY);
+        String title = it.next().getObject().getLiteralLexicalForm();
+        if (it.hasNext()) {
+            throw new InvalidTask();
+        }
+        return title;
+    }
+    private String getEditorialNote() throws InvalidTask {
+        Node skos_enditorialNote = NodeFactory.createURI("http://www.w3.org/2004/02/skos/core#editorialNote");
+        ExtendedIterator<Triple> it = taskG.find(Node.ANY, skos_enditorialNote, Node.ANY);
+        String editorialNote = it.next().getObject().getLiteralLexicalForm();
+        if (it.hasNext()) {
+            throw new InvalidTask();
+        }
+        return editorialNote;
+    }
+
+    public Node targetGraph;
+    public Node operation;
+    public String title;
+    public String editorialNote;
+    public Date date;
+    public Node creator;
+    public List<Node> sourceGraphs;
     public Query transformationQuery;
     public Query diffQuery;
-    public URL sourceEndpoint;
-    public URL publicationEndpoint;
-    public List<URL> dependingGraphs;
+    public Node sourceEndpoint;
+    public Node publicationEndpoint;
+    public List<Node> dependingGraphs;
 
     public static PublicationTask create(Graph graph) throws MalformedURLException, InvalidTask {
 
         PublicationTask pt = new PublicationTask();
         pt.taskG = graph;
+        pt.title = pt.getTitle();
+        pt.creator = pt.getCreator();
+        pt.editorialNote = pt.getEditorialNote();
+        pt.date = pt.getDate();
+        pt.operation = pt.getOperation();
         pt.targetGraph = pt.getTargetGraph();
         pt.sourceGraphs = pt.listSourceGraphs();
         pt.transformationQuery = pt.getTransformationQuery();
@@ -133,6 +188,17 @@ public class PublicationTask {
         pt.dependingGraphs = pt.listDependingGraphs();
 
         return pt;
+    }
+    
+    public boolean equals(PublicationTask pt){
+        return this.diffQuery.equals(pt.diffQuery) 
+               & this.operation.equals(pt.operation) 
+               & this.publicationEndpoint.equals(pt.publicationEndpoint) 
+               & this.sourceEndpoint.equals(pt.sourceEndpoint) 
+               & this.sourceGraphs.equals(pt.sourceGraphs) 
+               & this.targetGraph.equals(pt.targetGraph) 
+               & this.transformationQuery.equals(pt.transformationQuery); 
+        
     }
 
     public static PublicationTask create(File f) throws MalformedURLException, InvalidTask {

@@ -11,10 +11,11 @@ package org.fao.fi.flod.publisher.vocabularies;
  * @author Claudio Baldassarre <c.baldassarre@me.com>
  */
 public class PUBLICATION_POLICY_VOCAB {
+    public static final String NS = "http://semanticrepository/publisher/task#";
     
-    public static final String DIFF = "http://org.fao.fi/publisher/task/diff";
-    public static final String RESTORE = "http://org.fao.fi/publisher/task/restore";
-    public static final String DELETE = "http://org.fao.fi/publisher/task/delete";
-    public static final String REPUBLISH = "http://org.fao.fi/publisher/task/republish";
+    public static final String ADD = NS + "add";
+    public static final String RESTORE = NS + "restore";
+    public static final String REMOVE = NS + "remove";
+    public static final String PUBLISH = NS + "publish";
     
 }

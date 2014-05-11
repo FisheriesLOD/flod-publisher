@@ -1,8 +1,0 @@
-<http://semanticrepository/task> <http://semanticrepository/task#query> "CONSTRUCT \n  { ?s ?p <http://semanticrepository/transformed> .}\nWHERE\n  { ?s ?p ?o }\n" .
-<http://semanticrepository/task> <http://semanticrepository/task#source_endpoint> <http://168.202.3.223:3030/sr_staging/query> .
-<http://semanticrepository/task> <http://semanticrepository/task#publication_endpoint> <http://168.202.3.223:3030/sr_public/update> .
-<http://semanticrepository/task> <http://semanticrepository/task#target_graph> <http://semanticrepository/graph/target_graph> .
-<http://semanticrepository/task> <http://semanticrepository/task#depending_graph> <http://semanticrepository/graph/depending_graph2> .
-<http://semanticrepository/task> <http://semanticrepository/task#depending_graph> <http://semanticrepository/graph/depending_graph1> .
-<http://semanticrepository/task> <http://semanticrepository/task#source_graph> <http://semanticrepository/graph/source_graph1> .
-<http://semanticrepository/task> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://semanticrepository/task#Task> .

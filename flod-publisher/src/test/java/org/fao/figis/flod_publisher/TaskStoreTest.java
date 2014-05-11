@@ -16,10 +16,8 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import org.fao.fi.flod.publisher.store.task.TaskStore;
-import org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB;
 import org.fao.fi.flod.publisher.store.task.PublicationTask;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -65,7 +63,7 @@ public class TaskStoreTest {
     }
 
     @Test
-    public void testRun() throws MalformedURLException, PublicationTask.InvalidTask {
+    public void testRun() throws PublicationTask.InvalidTask, Exception {
     
         //populate statign with test graph
         Node gNode_source = NodeFactory.createURI("http://semanticrepository/graph/source_graph1");
@@ -74,9 +72,9 @@ public class TaskStoreTest {
         UpdateExecutionFactory.createRemote(insert_source, "http://168.202.3.223:3030/sr_staging/update").execute();
 
         PublicationTask fooTask = Utils.fooTask(this);
-        List<URL> dependingGs = TaskStore.getInstance().runTask(fooTask, PUBLICATION_POLICY_VOCAB.REPUBLISH);
-        for (URL url : dependingGs) {
-            log.info("remember to update also {} ",url);
+        List<Node> dependingGs = TaskStore.getInstance().runTask(fooTask);
+        for (Node dependingG : dependingGs) {
+            log.info("remember to update also {} ",dependingG);
         }
     }
 

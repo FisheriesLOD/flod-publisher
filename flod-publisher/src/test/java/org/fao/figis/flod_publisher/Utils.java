@@ -5,6 +5,7 @@
  */
 package org.fao.figis.flod_publisher;
 
+import com.hp.hpl.jena.graph.Graph;
 import org.fao.fi.flod.publisher.store.task.PublicationTask;
 import org.fao.fi.flod.publisher.vocabularies.TASK_VOCAB;
 import com.hp.hpl.jena.graph.NodeFactory;
@@ -26,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.fao.fi.flod.publisher.store.task.TaskStore;
+import org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -42,6 +45,7 @@ public class Utils {
         Resource sourceEndpoint = taskModel.createResource("http://168.202.3.223:3030/sr_staging/query");
         Resource publicationEndpoint = taskModel.createResource("http://168.202.3.223:3030/sr_public/update");
         Resource taskRes = taskModel.createResource("http://semanticrepository/task", TASK_VOCAB.TASK);
+        Resource policy = taskModel.createResource(PUBLICATION_POLICY_VOCAB.PUBLISH);
 
         URL sourceG1 = new URL("http://semanticrepository/graph/source_graph1");
 //        URL sourceG2 = new URL("http://semanticrepository/graph/source_graph2");
@@ -69,7 +73,8 @@ public class Utils {
         taskModel.add(taskRes, TASK_VOCAB.target_graph, targetG)
                 .add(taskRes, TASK_VOCAB.publication_endpoint, publicationEndpoint)
                 .add(taskRes, TASK_VOCAB.source_endpoint, sourceEndpoint)
-                .add(taskRes, TASK_VOCAB.transformation_query, q.serialize());
+                .add(taskRes, TASK_VOCAB.transformation_query, q.serialize())
+                .add(taskRes, TASK_VOCAB.operation, policy);
         return taskModel;
     }
 
@@ -101,5 +106,23 @@ public class Utils {
         } catch (IOException ex) {
             log.error(ex.getMessage());
         }
-    }   
+    }
+    
+    public static Graph microAsfisRemove() {
+        File f = new File("graphs/micro-asfis-remove.rdf");
+        return RDFDataMgr.loadGraph(f.toURI().toString());
+    }
+    public static Graph microAsfisAdd() {
+        File f = new File("graphs/micro-asfis-add.rdf");
+        return RDFDataMgr.loadGraph(f.toURI().toString());
+    }
+    public static Graph microAsfisExistenceCheck() {
+        File f = new File("graphs/micro-asfis-existence_check.rdf");
+        return RDFDataMgr.loadGraph(f.toURI().toString());
+    }
+
+    private void printOut(Graph g, String name) {
+        System.out.println(name);
+        RDFDataMgr.write(System.out, g, Lang.RDFXML);
+    }
 }

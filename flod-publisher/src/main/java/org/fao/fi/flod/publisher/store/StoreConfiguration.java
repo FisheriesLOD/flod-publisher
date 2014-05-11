@@ -1,4 +1,4 @@
-package org.fao.fi.flod.publisher;
+package org.fao.fi.flod.publisher.store;
 
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;

@@ -7,24 +7,27 @@ package org.fao.fi.flod.publisher.store.task;
 
 import org.fao.fi.flod.publisher.store.publication.PublicationStore;
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
+import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import com.hp.hpl.jena.sparql.core.DatasetGraphFactory;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.sparql.modify.request.QuadDataAcc;
 import com.hp.hpl.jena.sparql.modify.request.UpdateDataInsert;
-import com.hp.hpl.jena.sparql.util.ModelUtils;
 import com.hp.hpl.jena.sparql.util.ResultSetUtils;
 import com.hp.hpl.jena.update.UpdateExecutionFactory;
-import java.net.URL;
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.web.DatasetGraphAccessorHTTP;
 import org.fao.fi.flod.publisher.store.Store;
 import static org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB.*;
@@ -41,11 +44,11 @@ public class TaskStore extends Store {
     private static String allTaskURI = "http://sematicrepository/task/all";
 
     private static TaskStore instance;
+    private Node transformedG_node = NodeFactory.createURI("http://semanticrepository/staging/graph/transformed");
 
     private TaskStore() {
         storeAccessor = new DatasetGraphAccessorHTTP(configuration.getTaskEndpointURL().toString());
         storeAccessor_data = new DatasetGraphAccessorHTTP(configuration.getDataTaskEndpointURL().toString());
-//        loadTasks();
     }
 
     public static TaskStore getInstance() {
@@ -60,41 +63,43 @@ public class TaskStore extends Store {
         Query query_listPublicationTasks = configuration.query_listPublicationTasks();
         ResultSet execSelect = QueryExecutionFactory.sparqlService(configuration.getQueryEndpointURL().toString(), query_listPublicationTasks).execSelect();
 
-        List<String> graphURIs = ResultSetUtils.resultSetToStringList(execSelect, "graphId", "Resource");
-        for (String taskGuri : graphURIs) {
+        List<RDFNode> graphURIs = ResultSetUtils.resultSetToList(execSelect, "graphId");
+        for (RDFNode taskGnode : graphURIs) {
             try {
-                Node taskGnode = NodeFactory.createURI(taskGuri);
-                tasks.add(PublicationTask.create(storeAccessor_data.httpGet(taskGnode)));
+                tasks.add(PublicationTask.create(storeAccessor_data.httpGet(taskGnode.asNode())));
             } catch (Exception ex) {
-                log.error("The task {} was found with bed description", taskGuri, ex.getStackTrace());
+                log.error("The task {} was found with bed description", taskGnode, ex.getStackTrace());
             }
         }
         return tasks;
     }
 
-    public List<URL> runTask(PublicationTask task, String policy) {
-        try {
-            PublicationStore publicationStore = PublicationStore.getInstance();
-            Graph transformedGraph = transform(task.sourceGraphs, task.transformationQuery, task.sourceEndpoint);
-
-            if (policy.equals(DIFF)) {
-                log.info(DIFF);
-                Graph targetG = publicationStore.getGraph(task.targetGraph.toString());
-                Graph diffG = diffGraph(transformedGraph, targetG, task.diffQuery);
-                publicationStore.backup(task.targetGraph);
-                publicationStore.updated(diffG, task.targetGraph);
-
+    public List<Node> runTask(PublicationTask task) throws Exception {
+        PublicationStore publicationStore = PublicationStore.getInstance();
+        Graph deltaG = GraphFactory.createGraphMem();
+        Graph transformedGraph = transform(task.sourceGraphs, task.transformationQuery, task.sourceEndpoint);
+        printOut(transformedGraph, "transformed");
+        if (task.operation.toString().equals(ADD)
+                || task.operation.toString().equals(REMOVE)) {
+            log.info("executing {}, on {} ", task.operation, task.targetGraph.toString());
+            if (publicationStore.exists(task.targetGraph)) {
+                Graph targetG = publicationStore.getGraph(task.targetGraph);
+                printOut(targetG, "target");
+//                deltaG = deltaGraph(targetG, transformedGraph, task.targetGraph, transformedG_node, task.diffQuery);
+                deltaG = microAsfisAdd_fromFile();
+                printOut(deltaG, "delta");
+            } else {
+                throw new PublicationTask.InvalidTask();
             }
-            if (policy.equals(REPUBLISH)) {
-                log.info(REPUBLISH);
-                publicationStore.backup(task.targetGraph);
-                publicationStore.publish(transformedGraph, task.targetGraph);
-            }
-            return task.dependingGraphs;
-        } catch (Exception ex) {
-            log.error("query execution error");
         }
-        return Collections.EMPTY_LIST;
+        if (task.operation.toString().equals(PUBLISH)) {
+            log.info("executing {}, on {} ", task.operation, task.targetGraph.toString());
+            deltaG = transformedGraph;
+        }
+        publicationStore.backup(task.targetGraph);
+        publicationStore.publish(deltaG, task.targetGraph, task.operation.toString());
+        return task.dependingGraphs;
+
     }
 
     public void importTask(PublicationTask task) {
@@ -104,25 +109,40 @@ public class TaskStore extends Store {
         UpdateExecutionFactory.createRemote(insert, configuration.getTaskUpdateEndpointURL().toString()).execute();
     }
 
-    private Graph transform(List<URL> sourceGraphs, Query transformationQuery, URL sourceEndpoint) throws Exception {
+    private Graph transform(List<Node> sourceGraphs, Query transformationQuery, Node sourceEndpoint) throws Exception {
         List<String> graphs = new ArrayList<String>();
-        for (URL url : sourceGraphs) {
-            graphs.add(url.toString());
+        for (Node sourceG : sourceGraphs) {
+            graphs.add(sourceG.toString());
         }
         return QueryExecutionFactory.sparqlService(sourceEndpoint.toString(), transformationQuery, graphs, null).execConstruct().getGraph();
     }
 
-    private Graph diffGraph(Graph sourceG, Graph targetG, Query diffQ) {
-        Model targetM = ModelFactory.createDefaultModel();
-        targetM.add(ModelUtils.triplesToStatements(GraphUtil.findAll(targetG), targetM));
-        String selectDistinctVar = diffQ.getResultVars().get(0);
-        ResultSet targetRes = QueryExecutionFactory.create(diffQ, targetM).execSelect();
-        List<RDFNode> targetNodes = ResultSetUtils.resultSetToList(targetRes, selectDistinctVar);
-        for (RDFNode targetN : targetNodes) {
-            sourceG.remove(targetN.asNode(), Node.ANY, Node.ANY);
-            sourceG.remove(Node.ANY, Node.ANY, targetN.asNode());
-        }
-        return sourceG;
-
+    private Graph deltaGraph(Graph narrowG, Graph broaderG, Node narrowG_node, Node broaderG_node, Query diffQ) {
+        DatasetGraph dsg = DatasetGraphFactory.createMem();
+        dsg.addGraph(broaderG_node, broaderG);
+        dsg.addGraph(narrowG_node, narrowG);
+        return QueryExecutionFactory.create(diffQ, DatasetFactory.create(dsg)).execConstruct().getGraph();
     }
+
+    private Graph microAsfisAdd_fromFile() {
+        File f = new File("graphs/micro-asfis-add.rdf");
+        return RDFDataMgr.loadGraph(f.toURI().toString());
+    }
+
+    private Graph microAsfisRemove_fromFile() {
+        File f = new File("graphs/micro-asfis-remove.rdf");
+        return RDFDataMgr.loadGraph(f.toURI().toString());
+    }
+
+    public static void main(String[] args) throws MalformedURLException, PublicationTask.InvalidTask {
+        File taskFile = new File(args[1]);
+        PublicationTask task = PublicationTask.create(taskFile);
+        TaskStore.getInstance().importTask(task);
+    }
+
+    private void printOut(Graph g, String name) {
+        System.out.println(name);
+        RDFDataMgr.write(System.out, g, Lang.RDFXML);
+    }
+
 }

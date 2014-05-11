@@ -5,8 +5,9 @@
  */
 package org.fao.fi.flod.publisher;
 
-import org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.fao.fi.flod.publisher.store.publication.PublicationStore;
 import org.fao.fi.flod.publisher.store.task.TaskStore;
 import org.fao.fi.flod.publisher.store.task.PublicationTask;
@@ -28,7 +29,11 @@ public class Publisher {
         TaskStore taskRepository = TaskStore.getInstance();
         List<PublicationTask> tasks = taskRepository.listTasks();
         for (PublicationTask task : tasks) {
-            taskRepository.runTask(task, PUBLICATION_POLICY_VOCAB.REPUBLISH);
+            try {
+                taskRepository.runTask(task);
+            } catch (Exception ex) {
+                Logger.getLogger(Publisher.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 

@@ -6,12 +6,11 @@
 
 package org.fao.figis.flod_publisher;
 
+import com.hp.hpl.jena.graph.Node;
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import org.fao.fi.flod.publisher.store.task.TaskStore;
-import org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB;
 import org.fao.fi.flod.publisher.store.task.PublicationTask;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -25,11 +24,11 @@ public class TaskStoreIntegrationMapping {
         private static Logger log = LoggerFactory.getLogger(TaskStoreIntegrationMapping.class);
     
     @Test
-    public void runMicroAsfisUpdate() throws MalformedURLException, PublicationTask.InvalidTask {
+    public void runMappingTask() throws PublicationTask.InvalidTask, Exception {
         PublicationTask mapping_task = PublicationTask.create(new File("tasks/mapping.n3"));
-        List<URL> dependingGs = TaskStore.getInstance().runTask(mapping_task, PUBLICATION_POLICY_VOCAB.REPUBLISH);
-        for (URL url : dependingGs) {
-            log.info("remember to update also {} ",url);
+        List<Node> dependingGs = TaskStore.getInstance().runTask(mapping_task);
+        for (Node dependingG : dependingGs) {
+            log.info("remember to update also {} ",dependingG);
         }
     }
     
