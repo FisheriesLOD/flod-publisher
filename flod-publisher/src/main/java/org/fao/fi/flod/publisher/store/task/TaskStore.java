@@ -78,16 +78,12 @@ public class TaskStore extends Store {
         PublicationStore publicationStore = PublicationStore.getInstance();
         Graph deltaG = GraphFactory.createGraphMem();
         Graph transformedGraph = transform(task.sourceGraphs, task.transformationQuery, task.sourceEndpoint);
-        printOut(transformedGraph, "transformed");
         if (task.operation.toString().equals(ADD)
                 || task.operation.toString().equals(REMOVE)) {
             log.info("executing {}, on {} ", task.operation, task.targetGraph.toString());
             if (publicationStore.exists(task.targetGraph)) {
                 Graph targetG = publicationStore.getGraph(task.targetGraph);
-                printOut(targetG, "target");
-//                deltaG = deltaGraph(targetG, transformedGraph, task.targetGraph, transformedG_node, task.diffQuery);
-                deltaG = microAsfisAdd_fromFile();
-                printOut(deltaG, "delta");
+                deltaG = deltaGraph(targetG, transformedGraph, task.targetGraph, transformedG_node, task.diffQuery);
             } else {
                 throw new PublicationTask.InvalidTask();
             }
@@ -140,9 +136,5 @@ public class TaskStore extends Store {
         TaskStore.getInstance().importTask(task);
     }
 
-    private void printOut(Graph g, String name) {
-        System.out.println(name);
-        RDFDataMgr.write(System.out, g, Lang.RDFXML);
-    }
 
 }
