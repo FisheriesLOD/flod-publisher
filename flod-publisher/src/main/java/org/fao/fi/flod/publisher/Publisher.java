@@ -5,7 +5,6 @@
  */
 package org.fao.fi.flod.publisher;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,7 @@ import org.slf4j.LoggerFactory;
 public class Publisher {
     private static Logger log = LoggerFactory.getLogger(Publisher.class);
 
-    final private Map<PublicationTask, Boolean> taskRegistry = Collections.synchronizedMap(new HashMap<PublicationTask, Boolean>());
+    final private Map<PublicationTask, Boolean> taskRegistry = new HashMap<PublicationTask, Boolean>();
     final private ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(2);
 
     final static int SCHEDULED_FREQUENCY = 2 * 1000;
@@ -39,20 +38,21 @@ public class Publisher {
     		public void run() {
     			long id = System.currentTimeMillis();
     			
+    			System.out.println("RETRIEVE TASKS #" + id + ": BEGIN");
+
 //    			$this.retrieveTasks();
-    			System.out.println("RETRIEVE TASKS : BEGIN #" + id);
 
     			long sleepTime = Math.round(Math.random() * 2.5 * SCHEDULED_FREQUENCY);
     			try {
     				System.out.println("Retriever going to sleep for " + sleepTime + " mSec... 'nite!");
 
-    				//Simulates long computation times...
+    				//Simulates long, random computation times...
     				Thread.sleep(sleepTime);
     			} catch(InterruptedException Ie) {
     				throw new RuntimeException(Ie);
     			}
     			
-    			System.out.println("RETRIEVE TASKS : END #" + id);
+    			System.out.println("RETRIEVE TASKS #" + id + ": END");
     		}
     	}, 0, SCHEDULED_FREQUENCY, TimeUnit.MILLISECONDS);
     	
@@ -61,58 +61,63 @@ public class Publisher {
     		public void run() {
     			long id = System.currentTimeMillis();
     			
+    			System.out.println("EXECUTE #" + id + ": BEGIN");
+  
 //    			$this.execute();
-    			System.out.println("EXECUTE : BEGIN #" + id);
-    			
+
     			long sleepTime = Math.round(Math.random() * 2.5 * SCHEDULED_FREQUENCY);
     			
     			try {
     				System.out.println("Executor going to sleep for " + sleepTime + " mSec... 'nite!");
     				
-    				//Simulates long computation times...
+    				//Simulates long, random computation times...
     				Thread.sleep(sleepTime);
     			} catch(InterruptedException Ie) {
     				throw new RuntimeException(Ie);
     			}
     			
-    			System.out.println("EXECUTE : END #" + id);
+    			System.out.println("EXECUTE #" + id + ": END");
     		}    		
     	}, SCHEDULED_FREQUENCY / 2, SCHEDULED_FREQUENCY, TimeUnit.MILLISECONDS);
     }
 
     @SuppressWarnings("unused")
-	synchronized private void retrieveTasks() {
+	private void retrieveTasks() {
         List<PublicationTask> tasks = TaskStore.getInstance().listTasks();
-        for (PublicationTask pt : tasks) {
-            boolean executed = this.taskRegistry.containsKey(pt);
-            if (!executed) {
-                this.taskRegistry.put(pt, false);
-                log.info("new task registered for execution \n"
-                        + "source : {} \n"
-                        + "target : {} \n"
-                        + "operation : {} \n"
-                        + "creator: {}", 
-                        pt.sourceGraphs, 
-                        pt.targetGraph, 
-                        pt.operation, 
-                        pt.creator);
-            }
+        
+        synchronized(this.taskRegistry) {
+	        for (PublicationTask pt : tasks) {
+	            boolean executed = this.taskRegistry.containsKey(pt);
+	            if (!executed) {
+	                this.taskRegistry.put(pt, false);
+	                log.info("new task registered for execution \n"
+	                        + "source : {} \n"
+	                        + "target : {} \n"
+	                        + "operation : {} \n"
+	                        + "creator: {}", 
+	                        pt.sourceGraphs, 
+	                        pt.targetGraph, 
+	                        pt.operation, 
+	                        pt.creator);
+	            }
+	        }
         }
     }
 
     @SuppressWarnings("unused")
-	synchronized private void execute() {
-        Set<PublicationTask> tasks = this.taskRegistry.keySet();
-        for (PublicationTask pt : tasks) {
-            try {
-                boolean executed = this.taskRegistry.get(pt);
-                if (!executed) {
-                    TaskStore.getInstance().runTask(pt);
-                }
-            } catch (Exception ex) {
-                log.info("Error in task {} execution; see cause {}", pt.title, ex.getMessage());
-            }
-        }
-
+	private void execute() {
+    	synchronized(this.taskRegistry) {
+	        Set<PublicationTask> tasks = this.taskRegistry.keySet();
+	        for (PublicationTask pt : tasks) {
+	            try {
+	                boolean executed = this.taskRegistry.get(pt);
+	                if (!executed) {
+	                    TaskStore.getInstance().runTask(pt);
+	                }
+	            } catch (Exception ex) {
+	                log.info("Error in task {} execution; see cause {}", pt.title, ex.getMessage());
+	            }
+	        }
+    	}
     }
 }
