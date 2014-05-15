@@ -121,7 +121,7 @@ public class Utils {
         return RDFDataMgr.loadGraph(f.toURI().toString());
     }
 
-    private void printOut(Graph g, String name) {
+    public static void printOut(Graph g, String name) {
         System.out.println(name);
         RDFDataMgr.write(System.out, g, Lang.RDFXML);
     }

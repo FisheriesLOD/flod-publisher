@@ -8,7 +8,6 @@ package org.fao.figis.flod_publisher;
 
 import com.hp.hpl.jena.graph.Node;
 import java.io.File;
-import java.net.MalformedURLException;
 import java.util.List;
 import org.fao.fi.flod.publisher.store.task.TaskStore;
 import org.fao.fi.flod.publisher.store.task.PublicationTask;

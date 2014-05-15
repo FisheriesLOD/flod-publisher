@@ -8,7 +8,6 @@ package org.fao.figis.flod_publisher;
 
 import com.hp.hpl.jena.graph.Node;
 import java.io.File;
-import java.net.MalformedURLException;
 import java.util.List;
 import org.fao.fi.flod.publisher.store.task.TaskStore;
 import org.fao.fi.flod.publisher.store.task.PublicationTask;
@@ -23,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class TaskStoreIntegrationUpdate {
         private static Logger log = LoggerFactory.getLogger(TaskStoreIntegrationUpdate.class);
     
-    @Test
+//    @Test
     public void runMicroAsxfisUpdate_add() throws PublicationTask.InvalidTask, Exception {
         PublicationTask microAsfis_updateTask = PublicationTask.create(new File("tasks/micro-asfis_add.n3"));
         List<Node> dependingGs = TaskStore.getInstance().runTask(microAsfis_updateTask);
@@ -32,7 +31,7 @@ public class TaskStoreIntegrationUpdate {
         }
     }
     
-//    @Test
+    @Test
     public void runMicroAsfisUpdate_remove() throws PublicationTask.InvalidTask, Exception {
         PublicationTask microAsfis_updateTask = PublicationTask.create(new File("tasks/micro-asfis_remove.n3"));
         List<Node> dependingGs = TaskStore.getInstance().runTask(microAsfis_updateTask);

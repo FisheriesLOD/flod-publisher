@@ -200,6 +200,11 @@ public class PublicationTask {
                & this.transformationQuery.equals(pt.transformationQuery); 
         
     }
+    
+    public static boolean canExecute(){
+//        check the timestamp on source graph in staging
+        return true;
+    }
 
     public static PublicationTask create(File f) throws MalformedURLException, InvalidTask {
         Model taskM = RDFDataMgr.loadModel(f.toURI().toString());
