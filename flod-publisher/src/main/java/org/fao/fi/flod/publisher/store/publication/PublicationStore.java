@@ -54,13 +54,17 @@ public class PublicationStore extends Store {
     public void publish(Graph sourceG, Node targetGraph, String method) {
         if (method.equals(PUBLICATION_POLICY_VOCAB.PUBLISH)) {
             rewrite(sourceG, targetGraph);
+            log.info("Operation {} executed; {} triples were published", method, sourceG.size());
         }
         if (method.equals(PUBLICATION_POLICY_VOCAB.ADD)) {
             add(sourceG, targetGraph);
+            log.info("Operation {} executed; {} triples were added", method, sourceG.size());
         }
         if (method.equals(PUBLICATION_POLICY_VOCAB.REMOVE)) {
             remove(sourceG, targetGraph);
+            log.info("Operation {} executed; {} triples were removed", method, sourceG.size());
         }
+        
     }
 
     public void rewrite(Graph sourceG, Node targetG_node) {

@@ -28,19 +28,17 @@ sr:operation                 sr:add;
 sr:diff_query """ 
     CONSTRUCT 
      { ?codeTr ?p ?x .
-       ?coded_entity ?r ?y .
-     }   WHERE
+       ?coded_entity ?r ?y .}
+   WHERE
      { GRAPH <http://semanticrepository/staging/graph/transformed>
-            {?codeTr <http://www.ontologydesignpatterns.org/cp/owl/classification.owl#classifies> ?coded_entity .
-              ?coded_entity ?r ?y.
-              ?codeTr ?p ?x
-            filter(
-            not exists {
-                GRAPH <http://semanticrepository/public/graph/1.2/micro_asfis>
-         { ?codeTr <http://www.ontologydesignpatterns.org/cp/owl/classification.owl#classifies> ?o}
-            })
-            }
-} """;
+         { ?codeTr <http://www.ontologydesignpatterns.org/cp/owl/classification.owl#classifies> ?coded_entity .
+           ?coded_entity ?r ?y .
+           ?codeTr ?p ?x
+           FILTER NOT EXISTS {GRAPH <http://semanticrepository/public/graph/1.2/micro_asfis>
+              { ?codeTr <http://www.ontologydesignpatterns.org/cp/owl/classification.owl#classifies> ?o }
+          }
+        }
+    } """;
 
 sr:query     """
   PREFIX  rdfs:    <http://www.w3.org/2000/01/rdf-schema#>

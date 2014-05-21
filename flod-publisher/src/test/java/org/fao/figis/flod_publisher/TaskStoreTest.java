@@ -34,7 +34,7 @@ public class TaskStoreTest {
 
     @Test
     public void readStore() throws MalformedURLException {
-        List<PublicationTask> tasks = TaskStore.getInstance().listTasks();
+        List<Node> tasks = TaskStore.getInstance().listTasks();
         log.info("The task repository contains {} tasks definitions", tasks.size());
     }
 
@@ -58,13 +58,21 @@ public class TaskStoreTest {
 
     @Test
     public void importTask() throws MalformedURLException, PublicationTask.InvalidTask {
-        PublicationTask task = PublicationTask.create(taskFile);
-        TaskStore.getInstance().importTask(task);
+        PublicationTask CL_SUB_AREA_task_p = PublicationTask.create(new File("tasks/CL_SUB_AREA.n3"));
+        PublicationTask CL_SUB_AREA_task_add = PublicationTask.create(new File("tasks/CL_SUB_AREA_add.n3"));
+        PublicationTask CL_SUB_AREA_task_remove = PublicationTask.create(new File("tasks/CL_SUB_AREA_remove.n3"));
+        PublicationTask CL_FAO_MAJOR_AREA_task = PublicationTask.create(new File("tasks/CL_FAO_MAJOR_AREA.n3"));
+        PublicationTask area_hasPart_subArea_task = PublicationTask.create(new File("tasks/area_hasPart_subArea.n3"));
+//        TaskStore.getInstance().importTask(CL_FAO_MAJOR_AREA_task);
+//        TaskStore.getInstance().importTask(CL_SUB_AREA_task_p);
+        TaskStore.getInstance().importTask(CL_SUB_AREA_task_add);
+//        TaskStore.getInstance().importTask(CL_SUB_AREA_task_remove);
+//        TaskStore.getInstance().importTask(area_hasPart_subArea_task);
     }
 
     @Test
     public void testRun() throws PublicationTask.InvalidTask, Exception {
-    
+
         //populate statign with test graph
         Node gNode_source = NodeFactory.createURI("http://semanticrepository/graph/source_graph1");
         QuadDataAcc qda_source = makeQuadAcc(gNode_source, Utils.fooModel().getGraph());
@@ -74,7 +82,7 @@ public class TaskStoreTest {
         PublicationTask fooTask = Utils.fooTask(this);
         List<Node> dependingGs = TaskStore.getInstance().runTask(fooTask);
         for (Node dependingG : dependingGs) {
-            log.info("remember to update also {} ",dependingG);
+            log.info("remember to update also {} ", dependingG);
         }
     }
 

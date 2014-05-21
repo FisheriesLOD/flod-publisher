@@ -16,6 +16,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.sparql.util.Context;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.DCTerms;
+import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
@@ -136,7 +136,7 @@ public class PublicationTask {
     }
 
     private Date getDate() throws MalformedURLException, InvalidTask {
-        return Calendar.getInstance(Locale.ITALY).getTime();
+        return Calendar.getInstance().getTime();
     }
 
     private String getTitle() throws InvalidTask {
@@ -147,6 +147,7 @@ public class PublicationTask {
         }
         return title;
     }
+
     private String getEditorialNote() throws InvalidTask {
         Node skos_enditorialNote = NodeFactory.createURI("http://www.w3.org/2004/02/skos/core#editorialNote");
         ExtendedIterator<Triple> it = taskG.find(Node.ANY, skos_enditorialNote, Node.ANY);
@@ -157,6 +158,17 @@ public class PublicationTask {
         return editorialNote;
     }
 
+    private Node getTaskNode() throws InvalidTask {
+        ExtendedIterator<Triple> it = taskG.find(Node.ANY, RDF.type.asNode(), Node.ANY);
+        Node taskN = it.next().getSubject();
+        if (it.hasNext()) {
+            throw new InvalidTask();
+        }
+        String taskGraphNS = "http://semanticrepository/task/graph/";
+        return NodeFactory.createURI(taskGraphNS+taskN.getLocalName());
+    }
+    
+    public Node taskN;
     public Node targetGraph;
     public Node operation;
     public String title;
@@ -174,6 +186,7 @@ public class PublicationTask {
 
         PublicationTask pt = new PublicationTask();
         pt.taskG = graph;
+        pt.taskN = pt.getTaskNode();
         pt.title = pt.getTitle();
         pt.creator = pt.getCreator();
         pt.editorialNote = pt.getEditorialNote();
@@ -190,18 +203,13 @@ public class PublicationTask {
         return pt;
     }
     
-    public boolean equals(PublicationTask pt){
-        return this.diffQuery.equals(pt.diffQuery) 
-               & this.operation.equals(pt.operation) 
-               & this.publicationEndpoint.equals(pt.publicationEndpoint) 
-               & this.sourceEndpoint.equals(pt.sourceEndpoint) 
-               & this.sourceGraphs.equals(pt.sourceGraphs) 
-               & this.targetGraph.equals(pt.targetGraph) 
-               & this.transformationQuery.equals(pt.transformationQuery); 
-        
+    @Override
+    public boolean equals(Object pt_) {
+        PublicationTask pt = (PublicationTask)pt_;
+        return this.taskG.isIsomorphicWith(pt.taskG);
     }
-    
-    public static boolean canExecute(){
+
+    public static boolean canExecute() {
 //        check the timestamp on source graph in staging
         return true;
     }

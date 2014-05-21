@@ -5,6 +5,7 @@
  */
 package org.fao.fi.flod.publisher;
 
+import com.hp.hpl.jena.graph.Node;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,101 +24,73 @@ import org.slf4j.LoggerFactory;
  * @author Claudio Baldassarre <c.baldassarre@me.com>
  */
 public class Publisher {
+
     private static Logger log = LoggerFactory.getLogger(Publisher.class);
 
-    final private Map<PublicationTask, Boolean> taskRegistry = new HashMap<PublicationTask, Boolean>();
+    final private Map<Node, Boolean> taskRegistry = new HashMap<Node, Boolean>();
     final private ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(2);
 
-    final static int SCHEDULED_FREQUENCY = 2 * 1000;
-    
+    final static int SCHEDULED_FREQUENCY = 10 * 1000;
+
     public static void main(String[] args) {
-    	final Publisher $this = new Publisher();
-    	
-    	$this.SCHEDULER.scheduleAtFixedRate(new Runnable() {
-    		@Override
-    		public void run() {
-    			long id = System.currentTimeMillis();
-    			
-    			System.out.println("RETRIEVE TASKS #" + id + ": BEGIN");
+        final Publisher $this = new Publisher();
 
-//    			$this.retrieveTasks();
+        $this.SCHEDULER.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                $this.retrieveTasks();
+            }
+        }, 0, SCHEDULED_FREQUENCY, TimeUnit.MILLISECONDS);
 
-    			long sleepTime = Math.round(Math.random() * 2.5 * SCHEDULED_FREQUENCY);
-    			try {
-    				System.out.println("Retriever going to sleep for " + sleepTime + " mSec... 'nite!");
-
-    				//Simulates long, random computation times...
-    				Thread.sleep(sleepTime);
-    			} catch(InterruptedException Ie) {
-    				throw new RuntimeException(Ie);
-    			}
-    			
-    			System.out.println("RETRIEVE TASKS #" + id + ": END");
-    		}
-    	}, 0, SCHEDULED_FREQUENCY, TimeUnit.MILLISECONDS);
-    	
-    	$this.SCHEDULER.scheduleAtFixedRate(new Runnable() {
-    		@Override
-    		public void run() {
-    			long id = System.currentTimeMillis();
-    			
-    			System.out.println("EXECUTE #" + id + ": BEGIN");
-  
-//    			$this.execute();
-
-    			long sleepTime = Math.round(Math.random() * 2.5 * SCHEDULED_FREQUENCY);
-    			
-    			try {
-    				System.out.println("Executor going to sleep for " + sleepTime + " mSec... 'nite!");
-    				
-    				//Simulates long, random computation times...
-    				Thread.sleep(sleepTime);
-    			} catch(InterruptedException Ie) {
-    				throw new RuntimeException(Ie);
-    			}
-    			
-    			System.out.println("EXECUTE #" + id + ": END");
-    		}    		
-    	}, SCHEDULED_FREQUENCY / 2, SCHEDULED_FREQUENCY, TimeUnit.MILLISECONDS);
+        $this.SCHEDULER.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                $this.execute();
+            }
+        }, SCHEDULED_FREQUENCY / 2, SCHEDULED_FREQUENCY, TimeUnit.MILLISECONDS);
     }
 
-    @SuppressWarnings("unused")
-	private void retrieveTasks() {
-        List<PublicationTask> tasks = TaskStore.getInstance().listTasks();
-        
-        synchronized(this.taskRegistry) {
-	        for (PublicationTask pt : tasks) {
-	            boolean executed = this.taskRegistry.containsKey(pt);
-	            if (!executed) {
-	                this.taskRegistry.put(pt, false);
-	                log.info("new task registered for execution \n"
-	                        + "source : {} \n"
-	                        + "target : {} \n"
-	                        + "operation : {} \n"
-	                        + "creator: {}", 
-	                        pt.sourceGraphs, 
-	                        pt.targetGraph, 
-	                        pt.operation, 
-	                        pt.creator);
-	            }
-	        }
+    private void retrieveTasks() {
+        List<Node> tasks = TaskStore.getInstance().listTasks();
+        synchronized (this.taskRegistry) {
+            for (Node taskN : tasks) {
+                boolean executed = this.taskRegistry.containsKey(taskN);
+                if (!executed) {
+                    this.taskRegistry.put(taskN, false);
+                    System.out.println("new task registered " + taskN);
+//	                log.info("new task registered for execution \n"
+//	                        + "source : {} \n"
+//	                        + "target : {} \n"
+//	                        + "operation : {} \n"
+//	                        + "creator: {}", 
+//	                        pt.sourceGraphs, 
+//	                        pt.targetGraph, 
+//	                        pt.operation, 
+//	                        pt.creator);
+                } else //                        log.info("{} not a new task",pt.title);
+                {
+                    System.out.println(taskN + " is a known task");
+                }
+            }
         }
     }
 
-    @SuppressWarnings("unused")
-	private void execute() {
-    	synchronized(this.taskRegistry) {
-	        Set<PublicationTask> tasks = this.taskRegistry.keySet();
-	        for (PublicationTask pt : tasks) {
-	            try {
-	                boolean executed = this.taskRegistry.get(pt);
-	                if (!executed) {
-	                    TaskStore.getInstance().runTask(pt);
-	                }
-	            } catch (Exception ex) {
-	                log.info("Error in task {} execution; see cause {}", pt.title, ex.getMessage());
-	            }
-	        }
-    	}
+    private void execute() {
+        synchronized (this.taskRegistry) {
+            Set<Node> tasks = this.taskRegistry.keySet();
+            for (Node taskN : tasks) {
+                try {
+                    boolean executed = this.taskRegistry.get(taskN);
+                    if (!executed) {
+                        TaskStore ts = TaskStore.getInstance();
+                        PublicationTask pt = PublicationTask.create(ts.getGraph(taskN));
+                        ts.runTask(pt);
+                    }
+                } catch (Exception ex) {
+                    log.info("Error in task {} execution; see cause {}", taskN, ex.getMessage());
+                }
+            }
+            System.out.println("There is no new task to execute...");
+        }
     }
 }

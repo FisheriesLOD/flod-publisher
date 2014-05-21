@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class TaskStoreIntegration {
         private static Logger log = LoggerFactory.getLogger(TaskStoreIntegration.class);
 
-    @Test
+//    @Test
     public void runMicroAsfis() throws  PublicationTask.InvalidTask, Exception {
         PublicationTask microAsfis_task = PublicationTask.create(new File("tasks/micro-asfis.n3"));
         List<Node> dependingGs = TaskStore.getInstance().runTask(microAsfis_task);
@@ -30,10 +30,19 @@ public class TaskStoreIntegration {
             log.info("remember to update also {} ",dependingG);
         }
     }
-//    @Test
+    @Test
     public void runSubArea() throws  PublicationTask.InvalidTask, Exception {
-        PublicationTask microAsfis_task = PublicationTask.create(new File("tasks/CL_SUB_DIVISION.n3"));
-        List<Node> dependingGs = TaskStore.getInstance().runTask(microAsfis_task);
+        PublicationTask task = PublicationTask.create(new File("tasks/CL_SUB_AREA.n3"));
+        List<Node> dependingGs = TaskStore.getInstance().runTask(task);
+        for (Node dependingG : dependingGs) {
+            log.info("remember to update also {} ",dependingG);
+        }
+    }
+    
+    @Test
+    public void runArea() throws  PublicationTask.InvalidTask, Exception {
+        PublicationTask task = PublicationTask.create(new File("tasks/CL_FAO_MAJOR_AREA.n3"));
+        List<Node> dependingGs = TaskStore.getInstance().runTask(task);
         for (Node dependingG : dependingGs) {
             log.info("remember to update also {} ",dependingG);
         }

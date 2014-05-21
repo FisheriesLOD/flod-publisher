@@ -22,19 +22,19 @@ import org.slf4j.LoggerFactory;
 public class TaskStoreIntegrationUpdate {
         private static Logger log = LoggerFactory.getLogger(TaskStoreIntegrationUpdate.class);
     
-//    @Test
-    public void runMicroAsxfisUpdate_add() throws PublicationTask.InvalidTask, Exception {
-        PublicationTask microAsfis_updateTask = PublicationTask.create(new File("tasks/micro-asfis_add.n3"));
-        List<Node> dependingGs = TaskStore.getInstance().runTask(microAsfis_updateTask);
+    @Test
+    public void run_add() throws PublicationTask.InvalidTask, Exception {
+        PublicationTask addTask = PublicationTask.create(new File("tasks/CL_SUB_AREA_add.n3"));
+        List<Node> dependingGs = TaskStore.getInstance().runTask(addTask);
         for (Node dependingG : dependingGs) {
             log.info("remember to update also {} ",dependingG);
         }
     }
     
     @Test
-    public void runMicroAsfisUpdate_remove() throws PublicationTask.InvalidTask, Exception {
-        PublicationTask microAsfis_updateTask = PublicationTask.create(new File("tasks/micro-asfis_remove.n3"));
-        List<Node> dependingGs = TaskStore.getInstance().runTask(microAsfis_updateTask);
+    public void run_remove() throws PublicationTask.InvalidTask, Exception {
+        PublicationTask removeTask = PublicationTask.create(new File("tasks/CL_SUB_AREA_remove.n3"));
+        List<Node> dependingGs = TaskStore.getInstance().runTask(removeTask);
         for (Node dependingG : dependingGs) {
             log.info("remember to update also {} ",dependingG);
         }

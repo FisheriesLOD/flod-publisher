@@ -9,6 +9,7 @@ import org.fao.fi.flod.publisher.store.publication.PublicationStore;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
+import com.hp.hpl.jena.query.DatasetAccessorFactory;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -41,7 +42,6 @@ import org.slf4j.LoggerFactory;
 public class TaskStore extends Store {
 
     private static Logger log = LoggerFactory.getLogger(TaskStore.class);
-    private static String allTaskURI = "http://sematicrepository/task/all";
 
     private static TaskStore instance;
     private Node transformedG_node = NodeFactory.createURI("http://semanticrepository/staging/graph/transformed");
@@ -58,18 +58,14 @@ public class TaskStore extends Store {
         return instance;
     }
 
-    public List<PublicationTask> listTasks() {
-        List<PublicationTask> tasks = Collections.EMPTY_LIST;
+    public List<Node> listTasks() {
+        List<Node> tasks = new ArrayList();
         Query query_listPublicationTasks = configuration.query_listPublicationTasks();
-        ResultSet execSelect = QueryExecutionFactory.sparqlService(configuration.getQueryEndpointURL().toString(), query_listPublicationTasks).execSelect();
+        ResultSet execSelect = QueryExecutionFactory.sparqlService(configuration.getTaskEndpointURL().toString(), query_listPublicationTasks).execSelect();
 
-        List<RDFNode> graphURIs = ResultSetUtils.resultSetToList(execSelect, "graphId");
+        List<RDFNode> graphURIs = ResultSetUtils.resultSetToList(execSelect, "?g");
         for (RDFNode taskGnode : graphURIs) {
-            try {
-                tasks.add(PublicationTask.create(storeAccessor_data.httpGet(taskGnode.asNode())));
-            } catch (Exception ex) {
-                log.error("The task {} was found with bed description", taskGnode, ex.getStackTrace());
-            }
+            tasks.add(taskGnode.asNode());
         }
         return tasks;
     }
@@ -78,9 +74,8 @@ public class TaskStore extends Store {
         PublicationStore publicationStore = PublicationStore.getInstance();
         Graph deltaG = GraphFactory.createGraphMem();
         Graph transformedGraph = transform(task.sourceGraphs, task.transformationQuery, task.sourceEndpoint);
-        if (task.operation.toString().equals(ADD)
-                || task.operation.toString().equals(REMOVE)) {
-            log.info("executing {}, on {} ", task.operation, task.targetGraph.toString());
+        if (task.operation.toString().equals(ADD) || task.operation.toString().equals(REMOVE)) {
+            log.info("executing {} on {} ", task.operation, task.targetGraph.toString());
             if (publicationStore.exists(task.targetGraph)) {
                 Graph targetG = publicationStore.getGraph(task.targetGraph);
                 deltaG = deltaGraph(targetG, transformedGraph, task.targetGraph, transformedG_node, task.diffQuery);
@@ -89,7 +84,7 @@ public class TaskStore extends Store {
             }
         }
         if (task.operation.toString().equals(PUBLISH)) {
-            log.info("executing {}, on {} ", task.operation, task.targetGraph.toString());
+            log.info("executing {} on {} ", task.operation, task.targetGraph.toString());
             deltaG = transformedGraph;
         }
         publicationStore.backup(task.targetGraph);
@@ -99,10 +94,10 @@ public class TaskStore extends Store {
     }
 
     public void importTask(PublicationTask task) {
-        Node gNode = NodeFactory.createURI(allTaskURI);
-        QuadDataAcc qda = makeQuadAcc(gNode, task.taskG);
+        QuadDataAcc qda = makeQuadAcc(task.taskN, task.taskG);
         UpdateDataInsert insert = new UpdateDataInsert(qda);
         UpdateExecutionFactory.createRemote(insert, configuration.getTaskUpdateEndpointURL().toString()).execute();
+        log.info("Imported task {} created by {} for {}", task.title, task.creator, task.targetGraph);
     }
 
     private Graph transform(List<Node> sourceGraphs, Query transformationQuery, Node sourceEndpoint) throws Exception {
@@ -120,21 +115,10 @@ public class TaskStore extends Store {
         return QueryExecutionFactory.create(diffQ, DatasetFactory.create(dsg)).execConstruct().getGraph();
     }
 
-    private Graph microAsfisAdd_fromFile() {
-        File f = new File("graphs/micro-asfis-add.rdf");
-        return RDFDataMgr.loadGraph(f.toURI().toString());
-    }
-
-    private Graph microAsfisRemove_fromFile() {
-        File f = new File("graphs/micro-asfis-remove.rdf");
-        return RDFDataMgr.loadGraph(f.toURI().toString());
-    }
-
     public static void main(String[] args) throws MalformedURLException, PublicationTask.InvalidTask {
         File taskFile = new File(args[1]);
         PublicationTask task = PublicationTask.create(taskFile);
         TaskStore.getInstance().importTask(task);
     }
-
 
 }
