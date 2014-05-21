@@ -5,7 +5,21 @@
  */
 package org.fao.fi.flod.publisher.store.task;
 
+import static org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB.ADD;
+import static org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB.PUBLISH;
+import static org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB.REMOVE;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.jena.web.DatasetGraphAccessorHTTP;
+import org.fao.fi.flod.publisher.store.Store;
 import org.fao.fi.flod.publisher.store.publication.PublicationStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
@@ -21,15 +35,6 @@ import com.hp.hpl.jena.sparql.modify.request.QuadDataAcc;
 import com.hp.hpl.jena.sparql.modify.request.UpdateDataInsert;
 import com.hp.hpl.jena.sparql.util.ResultSetUtils;
 import com.hp.hpl.jena.update.UpdateExecutionFactory;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.jena.web.DatasetGraphAccessorHTTP;
-import org.fao.fi.flod.publisher.store.Store;
-import static org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -56,7 +61,7 @@ public class TaskStore extends Store {
     }
 
     public List<Node> listTasks() {
-        List<Node> tasks = new ArrayList();
+        List<Node> tasks = new ArrayList<Node>();
         Query query_listPublicationTasks = configuration.query_listPublicationTasks();
         ResultSet execSelect = QueryExecutionFactory.sparqlService(configuration.getTaskEndpointURL().toString(), query_listPublicationTasks).execSelect();
 
@@ -113,9 +118,27 @@ public class TaskStore extends Store {
     }
 
     public static void main(String[] args) throws MalformedURLException, PublicationTask.InvalidTask {
-        File taskFile = new File(args[0]);
+    	if(args.length == 0) {
+    		log.error("Usage: {} <file name>", TaskStore.class.getSimpleName());
+    		System.exit(-1);
+    	}
+    	
+    	File taskFile = new File(args[0]);
+    	
+    	if(!taskFile.exists() || !taskFile.isFile()) {
+    		log.error("The provided input file ({}) either does not exist or is not a file (a folder, maybe?)", taskFile.getAbsolutePath());
+    		System.exit(-1);
+    	}
+    	
+    	log.info("### Launching the task store (input file: {})", taskFile.getAbsolutePath());
+    	
+    	log.info("### Creating a publication task...");
         PublicationTask task = PublicationTask.create(taskFile);
+
+        log.info("### Importing the task...");
         TaskStore.getInstance().importTask(task);
+        
+        log.info("### Done!");
     }
 
 }
