@@ -38,7 +38,7 @@ public class TaskStoreTest {
         log.info("The task repository contains {} tasks definitions", tasks.size());
     }
 
-    @Test
+//    @Test
     public void describeTask() throws MalformedURLException, PublicationTask.InvalidTask {
 
         PublicationTask task = PublicationTask.create(Utils.fooTask().getGraph());
@@ -51,7 +51,7 @@ public class TaskStoreTest {
         log.info("transformation query found : {}", task.diffQuery);
     }
 
-    @Test
+//    @Test
     public void writeTaskOnFile() throws FileNotFoundException, MalformedURLException, PublicationTask.InvalidTask {
         PublicationTask.toFile(Utils.fooTask(null), taskFile);
     }
@@ -70,7 +70,7 @@ public class TaskStoreTest {
 //        TaskStore.getInstance().importTask(area_hasPart_subArea_task);
     }
 
-    @Test
+//    @Test
     public void testRun() throws PublicationTask.InvalidTask, Exception {
 
         //populate statign with test graph
