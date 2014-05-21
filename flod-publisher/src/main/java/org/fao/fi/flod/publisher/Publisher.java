@@ -57,19 +57,9 @@ public class Publisher {
                 boolean executed = this.taskRegistry.containsKey(taskN);
                 if (!executed) {
                     this.taskRegistry.put(taskN, false);
-                    System.out.println("new task registered " + taskN);
-//	                log.info("new task registered for execution \n"
-//	                        + "source : {} \n"
-//	                        + "target : {} \n"
-//	                        + "operation : {} \n"
-//	                        + "creator: {}", 
-//	                        pt.sourceGraphs, 
-//	                        pt.targetGraph, 
-//	                        pt.operation, 
-//	                        pt.creator);
-                } else //                        log.info("{} not a new task",pt.title);
-                {
-                    System.out.println(taskN + " is a known task");
+                    log.info("new task registered for execution {} ", taskN);
+                } else {
+                    log.info("{} not a new task", taskN);
                 }
             }
         }
@@ -87,10 +77,10 @@ public class Publisher {
                         ts.runTask(pt);
                     }
                 } catch (Exception ex) {
-                    log.info("Error in task {} execution; see cause {}", taskN, ex.getMessage());
+                    log.warn("In task {} execution; see cause {}", taskN, ex.getMessage());
                 }
             }
-            System.out.println("There is no new task to execute...");
+            log.info("TaskRepository has no new executable task: waiting...");
         }
     }
 }

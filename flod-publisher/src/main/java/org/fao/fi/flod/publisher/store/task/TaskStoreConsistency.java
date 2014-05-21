@@ -22,7 +22,11 @@ public class TaskStoreConsistency {
     private static Logger log = LoggerFactory.getLogger(TaskStoreConsistency.class);
     
     public static void existance(Graph targetG, Graph sourceG){
-        
+        if(targetG.isEmpty() || sourceG.isEmpty()){
+            log.warn("Target graph or Source graph are empty!");
+            return;
+        }
+        boolean allgood = true;
         UniqueFilter uniqueFilter = new UniqueFilter();
         ExtendedIterator<Node> nodes = GraphUtil.listSubjects(sourceG, Node.ANY, Node.ANY);
         nodes.andThen(GraphUtil.listObjects(sourceG, Node.ANY, Node.ANY));
@@ -30,9 +34,13 @@ public class TaskStoreConsistency {
         while (nodes.hasNext()) {
             Node sourceGnode = nodes.next();
             boolean containsNode = GraphUtil.containsNode(targetG, sourceGnode);
-            if(!containsNode)
-                log.warn("missing node {}", sourceGnode.toString());
+            if(!containsNode){
+                log.warn("missing node {} in target ", sourceGnode.toString());
+                allgood = false;
+            }
         }
+        if(allgood)
+                log.info("All nodes from source graph exist in the target");
         
     }
     

@@ -13,7 +13,6 @@ import com.hp.hpl.jena.sparql.modify.request.UpdateDataDelete;
 import com.hp.hpl.jena.sparql.modify.request.UpdateDataInsert;
 import com.hp.hpl.jena.sparql.modify.request.UpdateDrop;
 import com.hp.hpl.jena.update.UpdateExecutionFactory;
-import java.net.URL;
 import org.apache.jena.web.DatasetGraphAccessorHTTP;
 import org.fao.fi.flod.publisher.store.Store;
 import org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB;
@@ -32,6 +31,7 @@ public class PublicationStore extends Store {
     private PublicationStore() {
         storeAccessor = new DatasetGraphAccessorHTTP(configuration.getQueryEndpointURL().toString());
         storeAccessor_data = new DatasetGraphAccessorHTTP(configuration.getDataEndpointURL().toString());
+        endpoint_query_url = configuration.getQueryEndpointURL().toString();
     }
 
     public static PublicationStore getInstance() {

@@ -9,7 +9,6 @@ import org.fao.fi.flod.publisher.store.publication.PublicationStore;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.query.DatasetAccessorFactory;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -25,10 +24,7 @@ import com.hp.hpl.jena.update.UpdateExecutionFactory;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.web.DatasetGraphAccessorHTTP;
 import org.fao.fi.flod.publisher.store.Store;
 import static org.fao.fi.flod.publisher.vocabularies.PUBLICATION_POLICY_VOCAB.*;
@@ -45,10 +41,11 @@ public class TaskStore extends Store {
 
     private static TaskStore instance;
     private Node transformedG_node = NodeFactory.createURI("http://semanticrepository/staging/graph/transformed");
-
+    
     private TaskStore() {
         storeAccessor = new DatasetGraphAccessorHTTP(configuration.getTaskEndpointURL().toString());
         storeAccessor_data = new DatasetGraphAccessorHTTP(configuration.getDataTaskEndpointURL().toString());
+        endpoint_query_url = configuration.getTaskEndpointURL().toString();
     }
 
     public static TaskStore getInstance() {
@@ -116,7 +113,7 @@ public class TaskStore extends Store {
     }
 
     public static void main(String[] args) throws MalformedURLException, PublicationTask.InvalidTask {
-        File taskFile = new File(args[1]);
+        File taskFile = new File(args[0]);
         PublicationTask task = PublicationTask.create(taskFile);
         TaskStore.getInstance().importTask(task);
     }
