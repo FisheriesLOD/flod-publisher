@@ -35,6 +35,8 @@ public class Publisher {
     public static void main(String[] args) {
         final Publisher $this = new Publisher();
 
+        log.info("### Launching the publisher...");
+        
         $this.SCHEDULER.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -42,12 +44,20 @@ public class Publisher {
             }
         }, 0, SCHEDULED_FREQUENCY, TimeUnit.MILLISECONDS);
 
+        log.info("### Done!");
+        
+        log.info("### Launching the executor...");
+        
         $this.SCHEDULER.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 $this.execute();
             }
         }, SCHEDULED_FREQUENCY / 2, SCHEDULED_FREQUENCY, TimeUnit.MILLISECONDS);
+        
+        log.info("### Done!");
+        
+        log.info("### Publisher and executor are now running in the background: kill this process to stop them");
     }
 
     private void retrieveTasks() {
