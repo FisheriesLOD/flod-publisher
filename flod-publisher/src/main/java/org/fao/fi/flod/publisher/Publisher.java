@@ -85,6 +85,8 @@ public class Publisher {
                         TaskStore ts = TaskStore.getInstance();
                         PublicationTask pt = PublicationTask.create(ts.getGraph(taskN));
                         ts.runTask(pt);
+                        
+                        this.taskRegistry.put(taskN, true);
                     }
                 } catch (Exception ex) {
                     log.warn("In task {} execution; see cause {}", taskN, ex.getMessage());
